@@ -22,10 +22,11 @@
 		all[i].addEventListener('click',revealCheckbox);	
 	};
 	var getCell = function(row,col){
+
 		var el = board.children[row * col];
 		return el;
 	};
-	var tile = getCell(0,5);
-	console.log(tile);
+
+	var tile = getCell(1,1);
 
 })();
