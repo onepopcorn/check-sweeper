@@ -19,6 +19,11 @@
 		if(val)
 		{
 			el.innerHTML = 'x';
+			// alert("Boooooom you died!");
+			// unbindEvents();
+		} else {
+			el.innerHTML = checkNearMines(coords[0],coords[1]);
+			console.log(checkNearMines(coords[0],coords[1]));
 		}
 
 		return false;
@@ -31,24 +36,112 @@
 		return false;
 	};
 
+	// Remove all custom mouse events
+	var unbindEvents = function(){
+		var inputs = document.querySelectorAll('input');
+		for(var i in inputs)
+		{
+			if(typeof inputs[i] === 'object')
+			{
+				inputs[i].removeEventListener('contextmenu',markCheckbox);
+				inputs[i].removeEventListener('click',revealCheckbox);
+			}
+		}
+	};
+
+	// Helper function to check know if analized tile exists or not
+	var isInBounds = function(row,col){
+		return row >= 0 && row < ROWS_NUM && col >= 0 && col < COLS_NUM;
+	}
+	// TODO: Look at flood fill algorithm
+	var checkNearMines = function(row,col){
+		var mines = 0;
+		// Check upper left tile
+		if(isInBounds(row-1,col-1))
+		{
+			if(tiles[row-1][col-1] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check upper tile
+		if(isInBounds(row-1,col))
+		{
+			if(tiles[row-1][col] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check upper right tile
+		if(isInBounds(row-1,col+1))
+		{
+			if(tiles[row-1][col+1] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check right tile
+		if(isInBounds(row,col+1))
+		{
+			if(tiles[row][col+1] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check right down tile
+		if(isInBounds(row+1,col+1))
+		{
+			if(tiles[row+1][col+1] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check down tile
+		if(isInBounds(row+1,col))
+		{
+			if(tiles[row+1][col] === 1)
+			{
+				mines++;
+			} 
+		}
+		// Check down left tile
+		if(isInBounds(row+1,col-1))
+		{
+			if(tiles[row+1][col-1] === 1)
+			{
+				mines++;
+			}
+		} 
+		// Check left tile
+		if(isInBounds(row,col-1))
+		{
+			if(tiles[row][col-1] === 1)
+			{
+				mines++;
+			}
+		}
+
+		return mines;
+	};
+
 	// Get a child at given row & col
-	// var getCell = function(row,col){
-	// 	var index = row * ROWS_NUM + col;
-	// 	var el = board.children[index];
-	// 	return el;
-	// };
+	var getTileFromCoords = function(row,col){
+		var index = row * ROWS_NUM + col;
+		var el = board.children[index];
+		return el;
+	};
 
 	// Get row and col for a given child index
 	var getTileFromIndex = function(idx){
 		var col = Math.floor(idx / COLS_NUM),
 			row = idx - col * ROWS_NUM;
 		return [row,col];
-	}
+	};
 
 	var getRandomTileIndex = function(){
 		var rdn = Math.round(ROWS_NUM * COLS_NUM * Math.random() );
 		return rdn;
-	}
+	};
 
 	// Initialize game
 	var init = function(){
@@ -70,7 +163,8 @@
 			// Bind mouse events
 			checkbox.addEventListener('contextmenu',markCheckbox);
 			checkbox.addEventListener('click',revealCheckbox);
-		};
+		}
+
 		// Create game array
 		for(i=0;i<ROWS_NUM;i++)
 		{
@@ -81,21 +175,19 @@
 			}
 		}
 
-		// Set random mines TODO: Do this with a while loop and substract bombs left from totalMines
-		for(i=0;i<totalMines;i++)
+		// Set random mines
+		while(totalMines > 0)
 		{
 			var coords = getTileFromIndex(getRandomTileIndex()),
-				tile   = tiles[coords[0],coords[1]];
-
-			if(tile == 0)
+				tile   = tiles[coords[0]][coords[1]];
+			if(tile === 0)
 			{
-				tiles[coords[0],coords[1]] = 1;
-			} else 
-			{
-
+				tiles[coords[0]][coords[1]] = 1;
+				totalMines--;
 			}
 		}
-		console.log(tiles);
 	};
+
+	// Let's start
 	init();
 })();

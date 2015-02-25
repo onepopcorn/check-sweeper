@@ -1,6 +1,6 @@
 var gulp   = require('gulp'),
 	jshint = require('gulp-jshint'),
-	uglify = require('gulp-uglify'),
+	uglify = require('gulp-uglifyjs'),
 	html   = require('gulp-htmlhint'),
 	sass   = require('gulp-sass'),
 	clean  = require('gulp-clean'),
@@ -52,8 +52,9 @@ gulp.task('scripts',['scripts-clean'],function(){
 	return gulp.src(paths.scripts)
 		   .pipe(plumber())
 		   .pipe(jshint())
+		   .pipe(jshint.reporter('default'))
 		   .on('error', errorHanlder)
-		   .pipe(uglify())
+		   .pipe(uglify({outSourceMap:true}))
 		   .on('error', errorHanlder)
 		   .pipe(gulp.dest('bin/js'));
 });
