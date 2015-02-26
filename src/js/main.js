@@ -7,15 +7,11 @@
 		COLS_NUM   = 7;
 
 	// This is used to remove a checkbox and reveal whats it's behind
-	var revealCheckbox = function(e){
-		// Left click makes the inpu disappear
-		e.preventDefault();
-		e.currentTarget.className = 'hidden';
+	var revealCheckbox = function(el){
 		// Get the value "behind" the tile
-		var el     = e.currentTarget.parentNode,
-			coords = getTileFromIndex(el.getAttribute('id')),
+		var coords = getTileFromIndex(el.getAttribute('id')),
 			val    = tiles[coords[0]][coords[1]];
-		
+		// If value is a mine you lose if not continue playing
 		if(val)
 		{
 			el.innerHTML = 'x';
@@ -23,14 +19,20 @@
 			unbindEvents();
 		} else {
 			el.innerHTML = checkNearMines(coords[0],coords[1]);
-			console.log(checkNearMines(coords[0],coords[1]));
 		}
 
 		return false;
 	};
 
+	var leftClickHandler = function(e){
+		// Left click makes the inpu disappear
+		e.preventDefault();
+		e.currentTarget.className = 'hidden';
+		revealCheckbox(e.currentTarget.parentNode);
+	}
+
 	// This is used to mark a checkbox as a minesweeper "flag" with the right mouse button
-	var markCheckbox = function(e){
+	var rightClickHandler = function(e){
 		e.preventDefault();
 		e.currentTarget.checked = !e.currentTarget.checked;
 		return false;
@@ -43,8 +45,8 @@
 		{
 			if(typeof inputs[i] === 'object')
 			{
-				inputs[i].removeEventListener('contextmenu',markCheckbox);
-				inputs[i].removeEventListener('click',revealCheckbox);
+				inputs[i].removeEventListener('contextmenu',rightClickHandler);
+				inputs[i].removeEventListener('click',leftClickHandler);
 			}
 		}
 	};
@@ -67,15 +69,15 @@
 		// Check upper tile
 		if(isInBounds(row-1,col))
 		{
-			if(tiles[row-1][col] === 1)
+			if(tiles[row-1][col] === 1 && !reveal)
 			{
 				mines++;
 			} 
 		}
 		// Check upper right tile
-		if(isInBounds(row-1,col+1))
+		if(isInBounds(row-1,col+1) )
 		{
-			if(tiles[row-1][col+1] === 1)
+			if(tiles[row-1][col+1] === 1 && !reveal)
 			{
 				mines++;
 			} 
@@ -83,7 +85,7 @@
 		// Check right tile
 		if(isInBounds(row,col+1))
 		{
-			if(tiles[row][col+1] === 1)
+			if(tiles[row][col+1] === 1 && !reveal)
 			{
 				mines++;
 			} 
@@ -91,7 +93,7 @@
 		// Check right down tile
 		if(isInBounds(row+1,col+1))
 		{
-			if(tiles[row+1][col+1] === 1)
+			if(tiles[row+1][col+1] === 1 && !reveal)
 			{
 				mines++;
 			} 
@@ -99,7 +101,7 @@
 		// Check down tile
 		if(isInBounds(row+1,col))
 		{
-			if(tiles[row+1][col] === 1)
+			if(tiles[row+1][col] === 1 && !reveal)
 			{
 				mines++;
 			} 
@@ -107,7 +109,7 @@
 		// Check down left tile
 		if(isInBounds(row+1,col-1))
 		{
-			if(tiles[row+1][col-1] === 1)
+			if(tiles[row+1][col-1] === 1 && !reveal)
 			{
 				mines++;
 			}
@@ -115,7 +117,7 @@
 		// Check left tile
 		if(isInBounds(row,col-1))
 		{
-			if(tiles[row][col-1] === 1)
+			if(tiles[row][col-1] === 1 && !reveal)
 			{
 				mines++;
 			}
@@ -161,8 +163,8 @@
 			div.appendChild(checkbox);
 			board.appendChild(div);
 			// Bind mouse events
-			checkbox.addEventListener('contextmenu',markCheckbox);
-			checkbox.addEventListener('click',revealCheckbox);
+			checkbox.addEventListener('contextmenu',rightClickHandler);
+			checkbox.addEventListener('click',leftClickHandler);
 		}
 
 		// Create game array
