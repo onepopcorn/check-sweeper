@@ -19,8 +19,8 @@
 		if(val)
 		{
 			el.innerHTML = 'x';
-			// alert("Boooooom you died!");
-			// unbindEvents();
+			alert("Boooooom you died!");
+			unbindEvents();
 		} else {
 			el.innerHTML = checkNearMines(coords[0],coords[1]);
 			console.log(checkNearMines(coords[0],coords[1]));
@@ -52,7 +52,7 @@
 	// Helper function to check know if analized tile exists or not
 	var isInBounds = function(row,col){
 		return row >= 0 && row < ROWS_NUM && col >= 0 && col < COLS_NUM;
-	}
+	};
 	// TODO: Look at flood fill algorithm
 	var checkNearMines = function(row,col){
 		var mines = 0;
@@ -62,7 +62,7 @@
 			if(tiles[row-1][col-1] === 1)
 			{
 				mines++;
-			} 
+			}
 		}
 		// Check upper tile
 		if(isInBounds(row-1,col))
