@@ -4,7 +4,17 @@
 		tiles      = [],
 		totalMines = 10,
 		ROWS_NUM   = 7,
-		COLS_NUM   = 7;
+		COLS_NUM   = 7,
+		DIRECTIONS = [
+			{"row":-1,"col":-1}, // Upper left tile
+			{"row":-1,"col":0}, // Upper tile
+			{"row":-1,"col":1}, // Upper right tile
+			{"row":0,"col":+1}, // Right tile
+			{"row":+1,"col":+1}, // Right down tile
+			{"row":+1,"col":0}, // Down tile
+			{"row":+1,"col":-1}, // Down left tile
+			{"row":0,"col":-1}, // Left tile
+		];
 
 	// This is used to remove a checkbox and reveal whats it's behind
 	var revealCheckbox = function(el){
@@ -25,7 +35,7 @@
 	};
 
 	var leftClickHandler = function(e){
-		// Left click makes the inpu disappear
+		// Left click makes the input disappear
 		e.preventDefault();
 		e.currentTarget.className = 'hidden';
 		revealCheckbox(e.currentTarget.parentNode);
@@ -58,71 +68,20 @@
 	// TODO: Look at flood fill algorithm
 	var checkNearMines = function(row,col){
 		var mines = 0;
-		// Check upper left tile
-		if(isInBounds(row-1,col-1))
+		
+		for(var i in DIRECTIONS)
 		{
-			if(tiles[row-1][col-1] === 1)
+			var dir = DIRECTIONS[i];
+			if(!isInBounds(row + dir.row, col + dir.col))
+			{
+				continue;
+			}
+			if(tiles[row + dir.row][col + dir.col])
 			{
 				mines++;
 			}
 		}
-		// Check upper tile
-		if(isInBounds(row-1,col))
-		{
-			if(tiles[row-1][col] === 1 && !reveal)
-			{
-				mines++;
-			} 
-		}
-		// Check upper right tile
-		if(isInBounds(row-1,col+1) )
-		{
-			if(tiles[row-1][col+1] === 1 && !reveal)
-			{
-				mines++;
-			} 
-		}
-		// Check right tile
-		if(isInBounds(row,col+1))
-		{
-			if(tiles[row][col+1] === 1 && !reveal)
-			{
-				mines++;
-			} 
-		}
-		// Check right down tile
-		if(isInBounds(row+1,col+1))
-		{
-			if(tiles[row+1][col+1] === 1 && !reveal)
-			{
-				mines++;
-			} 
-		}
-		// Check down tile
-		if(isInBounds(row+1,col))
-		{
-			if(tiles[row+1][col] === 1 && !reveal)
-			{
-				mines++;
-			} 
-		}
-		// Check down left tile
-		if(isInBounds(row+1,col-1))
-		{
-			if(tiles[row+1][col-1] === 1 && !reveal)
-			{
-				mines++;
-			}
-		} 
-		// Check left tile
-		if(isInBounds(row,col-1))
-		{
-			if(tiles[row][col-1] === 1 && !reveal)
-			{
-				mines++;
-			}
-		}
-
+		
 		return mines;
 	};
 
