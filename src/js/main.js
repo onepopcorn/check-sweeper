@@ -62,8 +62,8 @@
 			{
 				tiles[coords[0]][coords[1]] = TYPE.BOMB;
 				/* DEBUG -- SHOW WHERE MINES ARE */ 
-				var el = document.querySelector('#' + toUnicode(idx));
-				el.children[0].checked = true;
+				// var el = document.querySelector('#' + toUnicode(idx));
+				// el.children[0].checked = true;
 				/* END DEBUG */
 				totalMines--;
 			}
