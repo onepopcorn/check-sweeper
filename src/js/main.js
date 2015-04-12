@@ -1,3 +1,97 @@
+'strict mode';
+// Define module namespace
+var Onepopcorn = Onepopcorn || {};
+
+/*
+ * @Class Timer
+ * 
+ * A stopwatch class to count elapsed minutes and seconds.
+ *
+ * @namespace Onepopcorn
+ * @param {String} Id of the HTML element that holds the counter.
+ */
+Onepopcorn.Timer = function (id){
+	this.el = document.querySelector('#'+id);
+	var self = this;
+	var _timerId = null;
+	var _counter = 0;
+	var _isActive = false;
+
+	// Private methods
+	function update(){
+		_counter++;
+		self.el.innerHTML = toTime();
+	}
+
+	function toTime(){
+		var minutes = parseInt(_counter / 60),
+			seconds = parseInt(_counter) % 60;
+		
+		minutes = minutes.toString().length > 1 ? minutes : "0" + minutes;
+		seconds = seconds.toString().length > 1 ? seconds : "0" + seconds;
+		
+		return minutes + ":" + seconds;
+	}
+
+	// Public methods
+	Onepopcorn.Timer.prototype.start = function start(){
+		if(!_isActive){
+			_timerId = setInterval(update,1000);
+			_isActive =  true;
+		}
+	};
+
+	Onepopcorn.Timer.prototype.stop = function stop(){
+		if(_isActive)
+		{
+			clearInterval(_timerId);
+			_isActive = false;
+		}
+	};
+};
+
+/*
+ * @Class Tile
+ * 
+ * A class to handle the tile elements and actions
+ *
+ * @param {Int} ID of the tile
+ * @param {Function} Callback to be triggered on click
+ */
+Onepopcorn.Tile = function(id,callback){
+	var self = this;
+	this.id = id;
+	this.type = 0; // Always initialized as TYPE.CLEAR or 0
+	this.callback = callback;
+	// Create and assign checkbox element
+	this.check = document.createElement('input');
+	this.check.setAttribute('type','checkbox');
+	// Create and assign div element
+	this.el = document.createElement('div');
+	this.el.className = "tile";
+	this.el.setAttribute('id',id);
+	this.el.appendChild(this.check);
+	
+	function onClick(e){
+		e.preventDefault();
+		self.callback(self.id);
+	}
+	this.check.addEventListener('click',onClick);
+
+	// This is used to mark a checkbox as a minesweeper "flag" with the right mouse button
+	function onRightClick(e){
+		e.preventDefault();
+		self.check.checked = !self.check.checked;
+	}
+	this.check.addEventListener('contextmenu',onRightClick);
+
+	// This must set the near bombs number or empty value.
+	Onepopcorn.Tile.prototype.setValue = function(val){
+		this.check.removeEventListener('click',onClick);
+		this.el.innerHTML = val;
+	};
+}; 
+
 (function(){
 	// Cache the board element
 	var board       = document.querySelector('#gameboard'),
@@ -19,35 +113,25 @@
 			{"row":0,"col":-1}, // Left tile
 		];
 
+	var timer = new Onepopcorn.Timer("timer");
+	
 	// Initialize game
 	function init (){
-		var i,j,len  = ROWS_NUM * COLS_NUM;
+		// Set board correct size
+		board.style.width = COLS_NUM * 13 + "px";
 
-		// Create game board
-		for(i=0;i<len;i++)
-		{	
-			// Create needed elements
-			var div = document.createElement('div'),
-				checkbox = document.createElement('input');
-			// Set their attributes
-			div.className = 'tile';
-			div.setAttribute('id',i); // It's better that way than check for index position for each element
-			checkbox.setAttribute('type','checkbox');
-			// Append it 
-			div.appendChild(checkbox);
-			board.appendChild(div);
-			// Bind mouse events
-			checkbox.addEventListener('contextmenu',rightClickHandler);
-			checkbox.addEventListener('click',leftClickHandler);
-		}
-
-		// Create game array
+		// Create game board & array
+		var i,j,count = 0;
 		for(i=0;i<ROWS_NUM;i++)
 		{
 			tiles.push([]);
 			for(j=0;j<COLS_NUM;j++)
 			{
-				tiles[i][j] = TYPE.CLEAR;
+				var tile = new Onepopcorn.Tile(i * ROWS_NUM + j,revealCheckbox);
+				tile.type = TYPE.CLEAR;
+				board.appendChild(tile.el);
+				tiles[i][j] = tile;
+				count++;
 			}
 		}
 
@@ -55,80 +139,73 @@
 		var totalMines = MINES_NUM;
 		while(totalMines > 0)
 		{
-			var idx    =  getRandomTileIndex(),
+			var idx    = getRandomTileIndex(),
 				coords = getTileFromIndex(idx),
 				tile   = tiles[coords[0]][coords[1]];
-			if(tile === 0)
+			
+			if(tile.type === TYPE.CLEAR)
 			{
-				tiles[coords[0]][coords[1]] = TYPE.BOMB;
-				/* DEBUG -- SHOW WHERE MINES ARE */ 
-				// var el = document.querySelector('#' + toUnicode(idx));
-				// el.children[0].checked = true;
-				/* END DEBUG */
+				tile.type = TYPE.BOMB;
 				totalMines--;
 			}
 		}
+
+		// Clean unnecessary vars
+		i,j,count,totalMines = null;
+
+		// Start timer & keep running only if current tab is in focus
+		timer.start();
+		window.onfocus = function(){
+			timer.start();
+		};
+
+		window.onblur = function(){
+			timer.stop();
+		};
 	}
 
-	// This is used to remove a checkbox and reveal whats it's behind
+	// This is used to remove a checkbox and reveal what's behind
 	function revealCheckbox (id){
 		// Get the value "behind" the tile
 		var coords = getTileFromIndex(id),
-			val    = tiles[coords[0]][coords[1]];
+			tile   = tiles[coords[0]][coords[1]];
 
 		// If value is a mine you lose if not continue playing
-		if(val === TYPE.BOMB)
+		if(tile.type === TYPE.BOMB)
 		{
-			setValueById(id,'x');
+			tile.setValue('x');
 			gameover();
 		} else {
 			// Mark as revealed
-			tiles[coords[0]][coords[1]] = TYPE.CHECKED;
+			tile.type = TYPE.CHECKED;
+			// Check how many mines are near
+			var minesNear = checkNearMines(coords[0],coords[1]);
+			if(minesNear === 0) {
+				tile.setValue('');
+				// Check near mines again
+				clearNearMines(coords[0],coords[1]);
+			} else {
+				tile.setValue(minesNear);
+			}
+
 			// Check if all mines has been removed
 			disarmed++;
 			if(disarmed ===  CLEAR_TILES)
 			{
 				gameover(true);
 			}
-
-			// Check how many mines are near
-			var minesNear = checkNearMines(coords[0],coords[1]);
-			if(minesNear === 0) {
-				setValueById(id,'');
-				// removeNearMines here? Check near mines again?
-				clearNearMines(coords[0],coords[1]);
-			} else {
-				setValueById(id,minesNear);
-			}
 		}
 		return false;
 	}
 
-	function setValueById (id,val){
-
-		var el = document.querySelector("#" + toUnicode(id));
-		el.innerHTML = val;
-	}
-
-	/* This is a helper function that gets the Unicode representation of any number. 
-	 * This is needed to use querySelect when ID's are numbers
-	 */
-	function toUnicode(number){
-		var str = "";
-		for(var i in String(number))
-		{
-			str += "\\" + String(number).charCodeAt(i).toString(16);
-		}
-
-		return str;
-	}
-
 	function gameover (win){
-		unbindEvents();
+		timer.stop();
 		var message = win === true ? "CONGRATULATIONS YOU WIN" : "GAME OVER";
 		var confirm = window.confirm(message+"\nplay again?");
 		if (confirm)
 		{
+			// I know this is very lazy solution. A real cool cool one 
+			//  should clean everything and set a new game.
 			window.location = "/";
 		}
 		
@@ -142,44 +219,15 @@
 			{
 				continue;
 			}
-
-			if(tiles[row + dir.row][col + dir.col] !== TYPE.CHECKED)
+			var tile = tiles[row + dir.row][col + dir.col];
+			if(tile.type !== TYPE.CHECKED)
 			{
-				var el = getTileFromCoords(col + dir.col,row + dir.row);
-				console.log(el.getAttribute('id'));
-				revealCheckbox(parseInt(el.getAttribute('id')));
+				revealCheckbox(tile.id);
 			}
 		}
 	}
 
-	function leftClickHandler (e){
-		// Left click makes the input disappear
-		e.preventDefault();
-		e.currentTarget.className = 'hidden';
-		revealCheckbox(e.currentTarget.parentNode.getAttribute('id'));
-	}
-
-	// This is used to mark a checkbox as a minesweeper "flag" with the right mouse button
-	function rightClickHandler (e){
-		e.preventDefault();
-		e.currentTarget.checked = !e.currentTarget.checked;
-		return false;
-	}
-
-	// Remove all custom mouse events
-	function unbindEvents (){
-		var inputs = document.querySelectorAll('input');
-		for(var i in inputs)
-		{
-			if(typeof inputs[i] === 'object')
-			{
-				inputs[i].removeEventListener('contextmenu',rightClickHandler);
-				inputs[i].removeEventListener('click',leftClickHandler);
-			}
-		}
-	}
-
-	// Helper function to check if analized tile exists or it's already checked
+	// Helper function to check if analized tile exists.
 	function isInBounds (row,col){
 		return row >= 0 && row < ROWS_NUM && col >= 0 && col < COLS_NUM;
 	}
@@ -194,7 +242,7 @@
 				continue;	
 			} 
 
-			if(tiles[row + dir.row][col + dir.col] === TYPE.BOMB){
+			if(tiles[row + dir.row][col + dir.col].type === TYPE.BOMB){
 				mines++;
 			}
 		}
@@ -202,17 +250,10 @@
 		return mines;
 	}
 
-	// Get a child at given row & col
-	function getTileFromCoords (row,col){
-		var index = row * ROWS_NUM + col;
-		var el = board.children[index];
-		return el;
-	}
-
 	// Get row and col for a given child index
 	function getTileFromIndex(idx){
-		var col = Math.floor(idx / COLS_NUM),
-			row = idx - col * ROWS_NUM;
+		var row = Math.floor(idx / COLS_NUM),
+			col = idx - row * ROWS_NUM;
 		return [row,col];
 	}
 

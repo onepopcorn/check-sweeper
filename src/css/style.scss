@@ -26,6 +26,12 @@ html, body {
 }
 
 .tile {
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	-o-user-select:none;
+	user-select:none;
+
 	background-color:#ccc;
 	width:13px;
 	height: 13px;
@@ -40,8 +46,8 @@ input[type='checkbox'] {
 	width:13px;
 	height:13px;
 	margin:0;
+	padding: 0;
 	left:0;
 	top:0;
 	position:absolute;
 }
-input.hidden{display: none}
