@@ -5,9 +5,33 @@ html, body {
 	color:#fff;
 }
 
+a {
+	color: #999;
+  	text-decoration: none;
+  	font-weight: 700;
+	&:hover{color: #fff;}
+}
+
+footer{
+	margin-top:20px;
+	text-align: center;
+  	color: #666;
+}
+
+input[type='checkbox'] {
+	width:13px;
+	height:13px;
+	margin:0;
+	padding: 0;
+	left:0;
+	top:0;
+	position:absolute;
+}
+
 .container {
 	text-align: center;
-	margin-top:30px;
+	margin:30px auto 0 auto;
+	max-width: 600px;
 	width: 100%;
 }
 
@@ -24,6 +48,8 @@ html, body {
 		clear: both;
 	}
 }
+
+#timer {margin-top:20px}
 
 .tile {
 	-webkit-user-select:none;
@@ -42,12 +68,20 @@ html, body {
 
 .message{margin-top: 30px;}
 
-input[type='checkbox'] {
-	width:13px;
-	height:13px;
-	margin:0;
-	padding: 0;
-	left:0;
-	top:0;
-	position:absolute;
+.alert-box{
+	padding: 5px 15px;
+    border: 1px solid #fff;
+    background-color: #933;
+    font-size: 12px;
+    font-weight: 700;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -ms-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.twitter {
+	margin: 20px 0;
+	text-align: left;
 }
