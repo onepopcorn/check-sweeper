@@ -39,6 +39,11 @@ gulp.task('styles-clean',function(){
 		   .pipe(clean());
 });
 
+gulp.task('assets-clean',function(){
+	return gulp.src('bin/img/**/*.*')
+		   .pipe(clean());
+});
+
 ///////// Main tasks /////////
 gulp.task('markup',['markup-clean'],function(){
 	return gulp.src(paths.html)
@@ -67,11 +72,18 @@ gulp.task('styles',['styles-clean'],function(){
 		   .pipe(gulp.dest('bin/css'));
 });
 
+gulp.task('assets',['assets-clean'],function(){
+	return gulp.src(paths.images)
+		   .pipe(plumber())
+		   .pipe(gulp.dest('bin/img'));
+});
+
 ///////// Watch tasks /////////
 gulp.task('watch',function(){
 	gulp.watch(paths.scripts,['scripts',sync.reload]);
 	gulp.watch(paths.styles,['styles',sync.reload]);
 	gulp.watch(paths.html,['markup',sync.reload]);
+	gulp.watch(paths.images,['assets',sync.reload]);
 });
 
 ///////// Server /////////
@@ -84,4 +96,4 @@ gulp.task('server',function(){
 });
 
 
-gulp.task('default',['markup','scripts','styles','watch','server']);
+gulp.task('default',['markup','scripts','styles','assets','watch','server']);
