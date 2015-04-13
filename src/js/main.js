@@ -1,4 +1,3 @@
-'strict mode';
 // Define module namespace
 var Onepopcorn = Onepopcorn || {};
 
@@ -92,7 +91,8 @@ Onepopcorn.Tile = function(id,callback){
 	};
 }; 
 
-(function(){
+(function(window){
+	'use strict';
 	// Cache the board element
 	var board       = document.querySelector('#gameboard'),
 		tiles       = [],
@@ -127,10 +127,10 @@ Onepopcorn.Tile = function(id,callback){
 			tiles.push([]);
 			for(j=0;j<COLS_NUM;j++)
 			{
-				var tile = new Onepopcorn.Tile(i * ROWS_NUM + j,revealCheckbox);
-				tile.type = TYPE.CLEAR;
-				board.appendChild(tile.el);
-				tiles[i][j] = tile;
+				var t = new Onepopcorn.Tile(i * ROWS_NUM + j,revealCheckbox);
+				t.type = TYPE.CLEAR;
+				board.appendChild(t.el);
+				tiles[i][j] = t;
 				count++;
 			}
 		}
@@ -151,7 +151,7 @@ Onepopcorn.Tile = function(id,callback){
 		}
 
 		// Clean unnecessary vars
-		i,j,count,totalMines = null;
+		i = j = count = totalMines = null;
 
 		// Start timer & keep running only if current tab is in focus
 		timer.start();
@@ -264,4 +264,4 @@ Onepopcorn.Tile = function(id,callback){
 
 	// Let's start
 	init();
-})();
+})(this);
