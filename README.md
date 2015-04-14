@@ -11,4 +11,4 @@ Just type `gulp`
 [@onepopcorn](http://onepopcorn.com)
 
 ## License
-This project is licensed under the terms of the MIT license.
+This project is licensed under the terms of the MIT license. Take a look at LICENSE.txt file for more information
