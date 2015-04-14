@@ -2,10 +2,10 @@
 A clone of minesweeper video game but made with checkboxes
 
 ## Installation
-Before anything be sure to have [gulp](http://http://gulpjs.com/) & [nodejs](htt://nodejs.org) so you need it to "compile" the project.
+Before anything be sure to have [gulp](http://http://gulpjs.com/) & [nodejs](http://nodejs.org) so you need it to "compile" the project.
 
 ## Usage
-Just type `gulp`
+Just type `npm install` to install the dependencies, then `gulp` to compile and run the test server
 
 ## Author
 [@onepopcorn](http://onepopcorn.com)

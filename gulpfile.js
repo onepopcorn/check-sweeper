@@ -67,7 +67,7 @@ gulp.task('scripts',['scripts-clean'],function(){
 gulp.task('styles',['styles-clean'],function(){
 	return gulp.src(paths.styles)
 		   .pipe(plumber())
-		   .pipe(sass())
+		   .pipe(sass({style:'compressed'}))
 		   .on('error', errorHanlder)
 		   .pipe(gulp.dest('bin/css'));
 });
