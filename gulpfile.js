@@ -2,7 +2,7 @@ var gulp   = require('gulp'),
 	jshint = require('gulp-jshint'),
 	uglify = require('gulp-uglifyjs'),
 	html   = require('gulp-htmlhint'),
-	sass   = require('gulp-sass'),
+	sass   = require('gulp-ruby-sass'),
 	clean  = require('gulp-clean'),
 	sync   = require('browser-sync'),
 	plumber= require('gulp-plumber'),
@@ -65,9 +65,7 @@ gulp.task('scripts',['scripts-clean'],function(){
 });
 
 gulp.task('styles',['styles-clean'],function(){
-	return gulp.src(paths.styles)
-		   .pipe(plumber())
-		   .pipe(sass({style:'compressed'}))
+	return sass('src/css',{style: 'compressed'})
 		   .on('error', errorHanlder)
 		   .pipe(gulp.dest('bin/css'));
 });
