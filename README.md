@@ -1,6 +1,9 @@
 # Check-Sweeper
 A clone of minesweeper video game but made with checkboxes
 
+## Demo
+You can take a look at the results [here](http://checksweeper.onepopcorn.com/)
+
 ## Installation
 Before anything be sure to have [gulp](http://http://gulpjs.com/) & [nodejs](http://nodejs.org) so you need it to "compile" the project.
 
