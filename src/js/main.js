@@ -9,45 +9,48 @@ var Onepopcorn = Onepopcorn || {};
  * @namespace Onepopcorn
  * @param {String} Id of the HTML element that holds the counter.
  */
-Onepopcorn.Timer = function (id){
-	this.el = document.querySelector('#'+id);
-	this._timerId = null;
-	this_isActive = false;
-	var _counter = 0;
-	var self = this;
 
-	// Private methods
-	function toTime(){
-		var minutes = parseInt(_counter / 60),
-			seconds = parseInt(_counter) % 60;
-		
-		minutes = minutes.toString().length > 1 ? minutes : "0" + minutes;
-		seconds = seconds.toString().length > 1 ? seconds : "0" + seconds;
-		
-		return minutes + ":" + seconds;
-	}
+(function(){
+	Onepopcorn.Timer = function (id){
+		this.el = document.querySelector('#'+id);
+		this._timerId = null;
+		this_isActive = false;
+		var _counter = 0;
+		var self = this;
 
-	this.update = function update(){
-		_counter++;
-		self.el.innerHTML = toTime();
+		// Private methods
+		function toTime(){
+			var minutes = parseInt(_counter / 60),
+				seconds = parseInt(_counter) % 60;
+			
+			minutes = minutes.toString().length > 1 ? minutes : "0" + minutes;
+			seconds = seconds.toString().length > 1 ? seconds : "0" + seconds;
+			
+			return minutes + ":" + seconds;
+		}
+
+		this.update = function update(){
+			_counter++;
+			self.el.innerHTML = toTime();
+		};
 	};
-};
 
-// Public methods
-Onepopcorn.Timer.prototype.start = function start(){
-	if(!this._isActive){
-		this._timerId = setInterval(this.update,1000);
-		this._isActive =  true;
-	}
-};
+	// Public methods
+	Onepopcorn.Timer.prototype.start = function start(){
+		if(!this._isActive){
+			this._timerId = setInterval(this.update,1000);
+			this._isActive =  true;
+		}
+	};
 
-Onepopcorn.Timer.prototype.stop = function stop(){
-	if(this._isActive)
-	{
-		clearInterval(this._timerId);
-		this._isActive = false;
-	}
-};
+	Onepopcorn.Timer.prototype.stop = function stop(){
+		if(this._isActive)
+		{
+			clearInterval(this._timerId);
+			this._isActive = false;
+		}
+	};
+})();
 
 /*
  * @Class Tile
@@ -57,42 +60,45 @@ Onepopcorn.Timer.prototype.stop = function stop(){
  * @param {Int} ID of the tile
  * @param {Function} Callback to be triggered on click
  */
-Onepopcorn.Tile = function (id,callback){
-	var self = this;
-	this.id = id;
-	this.type = 0; // Always initialized as TYPE.CLEAR or 0
-	this.callback = callback;
-	// Create and assign checkbox element
-	this.check = document.createElement('input');
-	this.check.setAttribute('type','checkbox');
-	// Create and assign div element
-	this.el = document.createElement('div');
-	this.el.className = "tile";
-	this.el.setAttribute('id',id);
-	this.el.appendChild(this.check);
-	
-	function onClick(e){
-		e.preventDefault();
-		self.callback(self.id);
-	}
-	this.check.addEventListener('click',onClick);
+(function(){
+	Onepopcorn.Tile = function (id,callback){
+		var self = this;
+		this.id = id;
+		this.type = 0; // Always initialized as TYPE.CLEAR or 0
+		this.callback = callback;
+		// Create and assign checkbox element
+		this.check = document.createElement('input');
+		this.check.setAttribute('type','checkbox');
+		// Create and assign div element
+		this.el = document.createElement('div');
+		this.el.className = "tile";
+		this.el.setAttribute('id',id);
+		this.el.appendChild(this.check);
+		
+		function onClick(e){
+			e.preventDefault();
+			self.callback(self.id);
+		}
+		this.check.addEventListener('click',onClick);
 
-	// This is used to mark a checkbox as a minesweeper "flag" with the right mouse button
-	function onRightClick(e){
-		e.preventDefault();
-		self.check.checked = !self.check.checked;
-	}
-	this.check.addEventListener('contextmenu',onRightClick);
+		// This is used to mark a checkbox as a minesweeper "flag" with the right mouse button
+		function onRightClick(e){
+			e.preventDefault();
+			self.check.checked = !self.check.checked;
+		}
+		this.check.addEventListener('contextmenu',onRightClick);
 
-	this.unbind = function unbind(){
-		this.check.removeEventListener('click',onClick);
+		this.unbind = function unbind(){
+			this.check.removeEventListener('click',onClick);
+		};
+	}; 
+	// This must set the near bombs number or empty value.
+	Onepopcorn.Tile.prototype.setValue = function(val){
+		this.unbind();
+		this.el.innerHTML = val;
 	};
-}; 
-// This must set the near bombs number or empty value.
-Onepopcorn.Tile.prototype.setValue = function(val){
-	this.unbind();
-	this.el.innerHTML = val;
-};
+
+})();
 
 (function(window){
 	'use strict';
@@ -267,4 +273,4 @@ Onepopcorn.Tile.prototype.setValue = function(val){
 
 	// Let's start
 	init();
-})(this);
+})(window);
